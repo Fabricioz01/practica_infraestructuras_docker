@@ -1,0 +1,205 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_URL")
+}
+
+model User {
+  id                        Int        @id @default(autoincrement())
+  email                     String     @unique
+  password                  String
+  name                      String?
+  lname                     String
+  phone                     String
+  idCard                    String
+  semestre                  Int
+  status                    Boolean
+  alias                     String?
+  biography                 String
+  communities               Comunity[]
+  followers                 Follower[]
+  user_line_link            user_line_link[]
+  products                  Product[]
+  publications              Publication[]    
+}
+
+
+model Follower {
+  id         Int       @id @default(autoincrement())
+  userId     Int
+  user       User @relation(fields: [userId], references: [id])
+  comunityId Int?
+  community  Comunity? @relation(fields: [comunityId], references: [id])
+  date       DateTime
+  status     Boolean
+}
+
+
+model Comunity {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  user        User @relation(fields: [userId], references: [id])
+  name        String
+  date_start  DateTime
+  followers   Follower[]
+  foros         Foro[]
+}
+
+model Foro {
+  id                Int     @id @default(autoincrement())
+  subject           String?
+  description       String
+  date_publication  DateTime?
+  date_update       DateTime?
+  answers           Answer?
+  responses         Response?
+  comunityId        Int
+  comunity          Comunity @relation(fields: [comunityId], references: [id])
+}
+
+model Answer {
+  id         Int    @id @default(autoincrement())
+  message    String?
+  foroId     Int    @unique
+  foro       Foro   @relation(fields: [foroId], references: [id])
+  responses  Response[]
+}
+
+model Response {
+  id         Int    @id @default(autoincrement())
+  message    String?
+  foroId     Int    @unique
+  foro       Foro   @relation(fields: [foroId], references: [id])
+  answerId   Int
+  answer     Answer @relation(fields: [answerId], references:[id])
+}
+
+
+
+
+model Rol{
+  id          Int        @id @default(autoincrement())
+  name        String
+  links       Link[]
+}
+
+
+model Link {
+  id                Int        @id @default(autoincrement())
+  rolId             Int
+  rol               Rol @relation(fields: [rolId], references: [id])
+  name              String      
+  Link              String
+  userLineLink      user_line_link[]
+}
+
+model user_line_link {
+  id                  Int      @id @default(autoincrement())
+  linkId              Int
+  link                Link     @relation(fields: [linkId], references: [id])
+  userId              Int
+  user                User     @relation(fields: [userId], references: [id])
+}
+
+
+
+
+model Category {
+  id                Int       @id @default(autoincrement())
+  name              String
+  description       String?
+  products          Product[]
+}
+
+model Service {
+  id              Int       @id @default(autoincrement())
+  name            String
+  DATE_START      DateTime?
+  DATE_END        DateTime?
+  products        Product[]
+}
+
+model Product {
+  id                Int           @id @default(autoincrement())
+  userId            Int
+  user              User          @relation(fields: [userId], references: [id])
+  categoryId        Int?
+  category          Category?     @relation(fields: [categoryId], references: [id])
+  serviceid         Int?
+  service           Service?      @relation(fields: [serviceid], references: [id])
+  name              String
+  description       String?
+  price             String?
+  date_create       String?
+  status            Boolean?
+  inv_line_pros     Inv_Line_Pro[]
+}
+
+
+
+
+model Customer {
+  id                Int         @id @default(autoincrement())
+  email             String      
+  password          String
+  name              String
+  lname             String
+  phone             String
+  idCard            String
+  Company           String
+  city              String?
+  job               String
+  invices           Invoice[]
+  publications      Publication[]
+}
+
+model Invoice {
+  id                Int         @id @default(autoincrement())
+  customerId        Int
+  customer          Customer    @relation(fields: [customerId], references: [id])
+  date              DateTime
+  inv_line_pros     Inv_Line_Pro[]
+}
+
+model Inv_Line_Pro {
+  id                Int         @id @default(autoincrement())
+  productId         Int
+  product           Product     @relation(fields: [productId], references: [id])
+  invoiceId         Int
+  invoice           Invoice     @relation(fields: [invoiceId], references: [id])
+}
+
+model Publication {
+  id                Int         @id @default(autoincrement())
+  customerId        Int?
+  customer          Customer?    @relation(fields: [customerId], references: [id])
+  userId            Int?
+  user              User?        @relation(fields: [userId], references: [id])
+  name              String
+  description       String?
+  image             Bytes?
+  date              DateTime
+  status            Boolean
+  reactios          React[]
+  comments          Comment[]
+}
+
+model React {
+  id                Int         @id @default(autoincrement())
+  publicationId     Int
+  publication       Publication @relation(fields: [publicationId], references: [id])
+  name              String             
+}
+
+model Comment {
+  id                Int         @id @default(autoincrement())
+  publicationId     Int
+  publication       Publication @relation(fields: [publicationId], references: [id])
+  text              String   
+}
