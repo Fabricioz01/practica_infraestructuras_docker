@@ -1,0 +1,165 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("POSTGRES_URL")
+}
+//Transaccion1 Marco Proaño
+model Evento {
+  id          Int      @id @default(autoincrement())
+  nombre      String
+  fecha       DateTime
+  hora        String
+  lugar       String
+  tipoEvento  TipoEvento @relation(fields: [tipoEventoId], references: [id])
+  tipoEventoId Int
+  responsable  Persona   @relation(fields: [responsableId], references: [id])
+  responsableId Int
+  pagos       Pago[]
+  reserva     Reserva[]
+  calificacion  Calificacion[]
+}
+//Transaccion2 Antonella Duran
+model Asistente {
+  id            Int      @id @default(autoincrement())
+  nombre        String
+  correo        String
+  telefono      String
+  cliente       Cliente?  @relation(fields: [clienteId], references: [id])
+  clienteId     Int?
+  metodoPago    MetodoPago? @relation(fields: [metodoPagoId], references: [id])
+  metodoPagoId  Int?
+}
+//Transaccion3 Annel
+model Pago {
+  id            Int      @id @default(autoincrement())
+  monto         Float
+  fechaPago     DateTime
+  metodoPago    MetodoPago   @relation(fields: [metodoPagoId], references: [id])
+  metodoPagoId  Int
+  evento        Evento       @relation(fields: [eventoId], references: [id])
+  eventoId      Int
+  cliente       Cliente      @relation(fields: [clienteId], references: [id])
+  clienteId     Int
+}
+//Transaccion4 Josselin Rodriguez
+model Servicio {
+  id         Int      @id @default(autoincrement())
+  nombre     String
+  costo      Float
+  reserva    Reserva  @relation(fields: [reservaId], references: [id])
+  reservaId  Int
+  tipoServicio  TipoServicio @relation(fields: [tipoServicioId], references: [id])
+  tipoServicioId  Int
+  Contratos   Contrato[]
+}
+//Transaccion5 Fabricio Zavala
+model Proveedor {
+  id                Int                 @id @default(autoincrement())
+  nombre            String
+  contacto          String
+  telefono          String
+  contrato          Contrato?           @relation(fields: [contratoId], references: [id])
+  contratoId        Int?
+  cliente           Cliente?            @relation(fields: [clienteId], references: [id])
+  clienteId         Int?
+  calificaciones    CalificacionProveedor[]
+}
+
+model TipoEvento {
+  id         Int     @id @default(autoincrement())
+  nombre     String
+  descripcion String
+  precioBase Float
+  aforoMaximo Int
+  duracion   Int
+  eventos    Evento[]
+}
+
+model Persona {
+  id           Int      @id @default(autoincrement())
+  nombre       String
+  apellido     String
+  correo       String @unique
+  telefono     String
+  direccion    String
+  ciudad       String
+  codigoPostal String
+  pais         String
+  eventos      Evento[]
+}
+
+model MetodoPago {
+  id    Int     @id @default(autoincrement())
+  nombre String
+  pagos  Pago[]
+  asistentes  Asistente[]
+
+}
+
+model Cliente {
+  id           Int      @id @default(autoincrement())
+  nombre       String
+  apellido     String
+  correo       String
+  telefono     String
+  direccion    String
+  ciudad       String
+  codigoPostal String
+  pais         String
+  asistentes     Asistente[]
+  pagos           Pago[]
+  proveedores     Proveedor[]
+}
+
+
+model Reserva {
+  id            Int      @id @default(autoincrement())
+  fechaReserva  DateTime
+  horaReserva   String
+  evento        Evento @relation(fields: [eventoId], references: [id])
+  eventoId      Int
+  duracionReserva Int
+  servicios Servicio[]
+}
+
+model TipoServicio {
+  id         Int     @id @default(autoincrement())
+  nombre     String
+  descripcion String
+  servicios  Servicio[]
+}
+
+model Contrato {
+  id               Int      @id @default(autoincrement())
+  fechaInicio      DateTime
+  fechaFinalizacion DateTime
+  servicio          Servicio @relation(fields: [servicioId], references: [id])
+  servicioId       Int
+  tipoContrato     String
+  costoTotal       Float
+  proveedor       Proveedor[]
+}
+
+model Calificacion {
+  id           Int      @id @default(autoincrement())
+  puntuacion   Int
+  comentarios  String
+  evento       Evento @relation(fields: [eventoId], references: [id])
+  eventoId     Int
+  fechaCalificacion DateTime
+}
+
+model CalificacionProveedor {
+  id              Int            @id @default(autoincrement())
+  puntuacion      Int
+  comentarios     String
+  proveedor       Proveedor       @relation(fields: [proveedorId], references: [id])
+  proveedorId     Int
+  fechaCalificacion DateTime
+}
